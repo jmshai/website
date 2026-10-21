@@ -4,7 +4,7 @@ publishDate: 2026-02-20
 description: "A short guide to the markdown features wired into this template — cover images, code, math, footnotes, and admonitions."
 tags: [ guide, writing, markdown ]
 coverImage:
-  src: ./_assets/cover-arcs.jpg
+  src: ../_assets/cover-arcs.jpg
   alt: "Concentric earth-tone arcs rising from a horizon line, like an abstract risograph sunrise."
 ---
 
@@ -22,7 +22,7 @@ tags: [ tag-one, tag-two ]
 # updatedDate: 2026-02-01      # optional — shown as "Updated …" on the post
 # draft: true                   # excludes the post from production builds
 # coverImage:                   # optional — appears between header and body
-#   src: ./_assets/cover.png
+#   src: ../_assets/cover.png
 #   alt: "Description for screen readers"
 ---
 ```
@@ -44,12 +44,12 @@ Drop an image beside the post and reference it with a relative path. Astro runs 
 resized, re-encoded to a modern format, and content-hashed for long-term caching — then marks body images
 `loading="lazy"` so they fade in as they scroll into view instead of shipping full-resolution files up front.
 
-![Overlapping translucent circles in warm sienna, ochre, and moss.](./_assets/overlapping-forms.jpg)
+![Overlapping translucent circles in warm sienna, ochre, and moss.](../_assets/overlapping-forms.jpg)
 
 The cover image at the top of this post comes from the same pipeline via the `coverImage` frontmatter field — but it
 loads eagerly with high fetch priority, since it sits above the fold.
 
-![Soft diagonal bands of ochre, rust, and moss on a cream background.](./_assets/color-fields.jpg)
+![Soft diagonal bands of ochre, rust, and moss on a cream background.](../_assets/color-fields.jpg)
 
 ## Tables
 

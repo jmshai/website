@@ -31,3 +31,4 @@ Footnotes work via remark-gfm[^1]. They render at the bottom of the post and are
 You can mix `inline code`, *italics*, **bold**, and ***both*** in the same line. ~~Strikethrough~~ works too.
 
 Delete or replace this file once you've got real posts.
+

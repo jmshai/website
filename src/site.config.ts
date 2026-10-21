@@ -12,7 +12,7 @@ export const siteConfig: SiteConfig = {
 		},
 	},
 	description:
-		"Personal Website of Shailesh JM",
+		"personal website of shailesh jm",
 	lang: "en-US",
 	ogLocale: "en_US",
 	sortPostsByUpdatedDate: false,
@@ -20,9 +20,9 @@ export const siteConfig: SiteConfig = {
 	hideThemeCredit: true,
 	profile: {
 		name: "Shailesh",
-		email: "john@example.com",
+		email: "jmshailesh587@gmail.com",
 		github: "https://github.com/jmshai",
-		linkedin: "https://www.linkedin.com/in/shailesh-jm/",
+		//linkedin: "https://www.linkedin.com/in/shailesh-jm/",
 		//jobTitle: "Software Engineer",
 		//employer: "Example Inc.",
 		//employerUrl: "https://example.com",
