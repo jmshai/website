@@ -17,9 +17,9 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 const { entry } = Astro.props;
 if (entry.data.externalUrl) return Astro.redirect(entry.data.externalUrl, 301);
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 ---
 
-<PostLayout post={entry}>
+<PostLayout post={entry} headings={headings}>
 	<Content />
 </PostLayout>

@@ -1,0 +1,259 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+    headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+const sections = headings.filter(
+    (heading) => heading.depth === 2 || heading.depth === 3
+);
+---
+
+{sections.length > 0 && (
+    <aside class="toc" aria-label="Table of contents">
+        <nav class="toc-inner" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+
+            <ul>
+                {sections.map((heading) => (
+                    <li class:list={{ nested: heading.depth === 3 }}>
+                        <a href={`#${heading.slug}`} data-toc-link>
+                            {heading.text}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+    </aside>
+)}
+
+<style>
+    .toc {
+    position: relative;
+    width: 210px;
+    }
+
+    .toc-inner {
+        position: sticky;
+        top: 48px;
+        max-height: calc(100vh - 96px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    .toc-title {
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: hsl(var(--theme-text-muted));
+        margin: 0 0 16px;
+    }
+
+    .toc ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .toc li {
+        margin: 0;
+    }
+
+    .toc li.nested a {
+        padding-left: 20px;
+    }
+
+    .toc a {
+        display: block;
+        padding: 6px 0;
+
+        font-family: inherit;
+        font-size: 13.5px;
+        font-weight: 400;
+        line-height: 1.6;
+        letter-spacing: -0.01em;
+
+        text-decoration: none;
+        color: hsl(var(--theme-text-muted) / 0.75);
+
+        transition: color 200ms ease;
+    }
+
+    .toc a:hover {
+        color: hsl(var(--theme-text));
+    }
+
+    .toc a.active {
+        color: hsl(var(--theme-accent));
+    }
+
+    @media (max-width: 1100px) {
+        .toc {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    function initializeTOC() {
+        const links = Array.from(
+            document.querySelectorAll<HTMLAnchorElement>("[data-toc-link]")
+        );
+
+        if (!links.length) return;
+
+        const headings = links
+            .map((link) => {
+                const id = decodeURIComponent(link.hash.slice(1));
+                const element = document.getElementById(id);
+
+                return element ? { link, element } : null;
+            })
+            .filter(
+                (item): item is {
+                    link: HTMLAnchorElement;
+                    element: HTMLElement;
+                } => item !== null
+            );
+
+        if (!headings.length) return;
+
+        const threshold = 120;
+
+        let ticking = false;
+        let clickedIndex: number | null = null;
+        let clickTargetY = 0;
+
+        function setActiveHeading(activeIndex: number) {
+            headings.forEach(({ link }, index) => {
+                const active = index === activeIndex;
+
+                link.classList.toggle("active", active);
+
+                if (active) {
+                    link.setAttribute("aria-current", "location");
+                } else {
+                    link.removeAttribute("aria-current");
+                }
+            });
+        }
+
+        function getActiveIndex(): number {
+            let activeIndex = 0;
+
+            for (let i = 0; i < headings.length; i++) {
+                const top =
+                    headings[i].element.getBoundingClientRect().top;
+
+                if (top <= threshold) {
+                    activeIndex = i;
+                } else {
+                    break;
+                }
+            }
+
+            // Handle the final section when the page cannot
+            // scroll far enough to bring its heading to the top.
+            const atBottom =
+                window.scrollY + window.innerHeight >=
+                document.documentElement.scrollHeight - 10;
+
+            if (atBottom) {
+                const lastIndex = headings.length - 1;
+                const lastTop =
+                    headings[lastIndex].element.getBoundingClientRect().top;
+
+                if (lastTop <= window.innerHeight * 0.5) {
+                    activeIndex = lastIndex;
+                }
+            }
+
+            return activeIndex;
+        }
+
+        function updateActiveHeading() {
+            // Preserve a clicked heading while the browser scrolls
+            // to its destination.
+            if (clickedIndex !== null) {
+                setActiveHeading(clickedIndex);
+
+                const reachedTarget =
+                    Math.abs(window.scrollY - clickTargetY) < 2;
+
+                if (reachedTarget) {
+                    clickedIndex = null;
+                }
+
+                return;
+            }
+
+            setActiveHeading(getActiveIndex());
+        }
+
+        function onScroll() {
+            if (ticking) return;
+
+            ticking = true;
+
+            requestAnimationFrame(() => {
+                updateActiveHeading();
+                ticking = false;
+            });
+        }
+
+        // Clicking a TOC heading takes priority over
+        // position-based scroll tracking.
+        headings.forEach(({ link, element }, index) => {
+            link.addEventListener("click", () => {
+                clickedIndex = index;
+
+                const headingY =
+                    element.getBoundingClientRect().top +
+                    window.scrollY;
+
+                const maxScroll =
+                    document.documentElement.scrollHeight -
+                    window.innerHeight;
+
+                clickTargetY = Math.max(
+                    0,
+                    Math.min(headingY, maxScroll)
+                );
+
+                setActiveHeading(index);
+            });
+        });
+
+        window.addEventListener("scroll", onScroll, {
+            passive: true,
+        });
+
+        window.addEventListener("resize", onScroll);
+
+        // Handle direct links such as #whats-next.
+        if (window.location.hash) {
+            const hash = decodeURIComponent(
+                window.location.hash.slice(1)
+            );
+
+            const index = headings.findIndex(
+                ({ element }) => element.id === hash
+            );
+
+            if (index !== -1) {
+                setActiveHeading(index);
+            } else {
+                updateActiveHeading();
+            }
+        } else {
+            updateActiveHeading();
+        }
+    }
+
+    initializeTOC();
+</script>
