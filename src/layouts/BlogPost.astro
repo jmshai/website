@@ -2,7 +2,6 @@
 import { type CollectionEntry, render } from "astro:content";
 import { Image } from "astro:assets";
 
-import ShareButtons from "@/components/blog/ShareButtons.astro";
 import Mermaid from "@/components/blog/Mermaid.astro";
 import katexStylesheet from "katex/dist/katex.min.css?url";
 import WebMentions from "@/components/blog/webmentions/index.astro";
@@ -129,8 +128,6 @@ const giscusThemes = import.meta.env.PROD
 			<article class="post-article">
 				<slot />
 			</article>
-
-			<ShareButtons title={title} url={postUrl} description={description} />
 
 			<WebMentions />
 
@@ -276,11 +273,6 @@ const giscusThemes = import.meta.env.PROD
 	.post-tags .tag-link {
 		color: inherit;
 		text-decoration: none;
-		transition: color 0.2s ease;
-	}
-	.post-tags .tag-link::before {
-		content: "#";
-		color: var(--faint);
 		transition: color 0.2s ease;
 	}
 	.post-tags .tag-link:hover,

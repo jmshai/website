@@ -1,7 +1,6 @@
 ---
-import ExternalIcon from "@/components/blog/ExternalIcon.astro";
 import PostList from "@/components/blog/PostList.astro";
-import { getAllPosts, getPostHref, getPostSortDate, sortMDByDate } from "@/data/post";
+import { getAllPosts, sortMDByDate } from "@/data/post";
 import { showcase } from "@/data/showcase";
 import PageLayout from "@/layouts/Base.astro";
 import { siteConfig } from "@/site-config";
@@ -13,8 +12,6 @@ const allPosts = await getAllPosts();
 const allPostsByDate = sortMDByDate(allPosts);
 const TIMELINE_LIMIT = 5;
 const timelinePosts = allPostsByDate.slice(0, TIMELINE_LIMIT);
-const featured = timelinePosts[0];
-const rest = timelinePosts.slice(1);
 const archiveCount = allPosts.length;
 
 const profile = siteConfig.profile;
@@ -75,44 +72,23 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 	</section>
 
 	<section class="writing" aria-labelledby="writing-label">
-		<div class="section-label" id="writing-label">Writing</div>
+		<div class="section-label" id="writing-label">Posts</div>
 		<div class="timeline">
-			{
-				featured && (
-					<div class="post featured" style="--i: 0">
-						<div class="post-rail">
-							<time class="post-date" datetime={getPostSortDate(featured).toISOString()}>
-								{formatRailDate(getPostSortDate(featured))}
-							</time>
-							<span class="post-dot" aria-hidden="true" />
-						</div>
-						<div class="post-body">
-							<div class="post-stamp">Latest · {formatStampDate(getPostSortDate(featured))}</div>
-							<h2 class="post-title">
-								<a class="post-cardlink" data-astro-prefetch href={getPostHref(featured)}>
-									{featured.data.title}</a>{featured.data.externalUrl && <ExternalIcon />}
-							</h2>
-							<p class="post-excerpt">{featured.data.description}</p>
-							{!!featured.data.tags?.length && (
-								<div class="post-meta">
-									{featured.data.tags.map((t, i) => (
-										<Fragment>{i > 0 && <span class="dot">·</span>}<a class="tag" href={withBase(`/tags/${encodeURIComponent(t)}/`)}>{t}</a></Fragment>
-									))}
-								</div>
-							)}
-						</div>
-					</div>
-				)
-			}
+    <PostList
+        posts={timelinePosts}
+        startIndex={0}
+        headingLevel="h3"
+    />
 
-			<PostList posts={rest} startIndex={1} headingLevel="h3" />
-
-			<div class="archive-link" style={`--i: ${rest.length + 1}`}>
-				<a data-astro-prefetch href={withBase("/posts/")}
-					>View all {archiveCount} posts →</a
-				>
-			</div>
-		</div>
+    <div
+        class="archive-link"
+        style={`--i: ${timelinePosts.length}`}
+    >
+        <a data-astro-prefetch href={withBase("/posts/")}>
+            View all {archiveCount} posts →
+        </a>
+    </div>
+</div>
 	</section>
 
 	{showcase.length > 0 && (
@@ -176,91 +152,6 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 	/* ---------- Writing timeline ---------- */
 	.writing {
 		margin-bottom: 84px;
-	}
-	/* ---------- Featured post ---------- */
-	.post.featured .post-body {
-		position: relative;
-		padding-bottom: 56px;
-	}
-	/* Title is the post link; its ::after stretches over the whole card body so
-	   clicking anywhere opens the post, while the tag links sit above it. */
-	.post.featured .post-cardlink {
-		color: inherit;
-		text-decoration: none;
-	}
-	.post.featured .post-cardlink::after {
-		content: "";
-		position: absolute;
-		inset: 0;
-		z-index: 1;
-	}
-	.post.featured .post-cardlink:focus-visible {
-		outline: 2px solid hsl(var(--theme-accent));
-		outline-offset: 3px;
-		border-radius: 3px;
-	}
-	.post.featured .post-stamp {
-		font-family: var(--font-mono);
-		font-size: 11px;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: hsl(var(--theme-accent));
-		margin-bottom: 12px;
-	}
-	.post.featured .post-title {
-		font-size: 30px;
-		line-height: 1.14;
-		margin-bottom: 14px;
-		letter-spacing: -0.02em;
-	}
-	.post.featured .post-excerpt {
-		font-size: 18px;
-		line-height: 1.62;
-		color: hsl(var(--theme-text-muted));
-		margin: 0 0 14px;
-		max-width: 58ch;
-		word-wrap: break-word;
-		overflow-wrap: anywhere;
-	}
-	.post.featured .post-meta {
-		position: relative;
-		z-index: 2;
-		font-family: var(--font-mono);
-		font-size: 11.5px;
-		color: hsl(var(--theme-text) / 0.55);
-		font-variant-numeric: tabular-nums;
-		font-feature-settings: "tnum";
-	}
-	.post.featured .post-meta .tag {
-		color: inherit;
-		text-decoration: none;
-		transition: color 0.2s ease;
-	}
-	.post.featured .post-meta .tag::before {
-		content: "#";
-		color: var(--faint);
-		transition: color 0.2s ease;
-	}
-	.post.featured .post-meta .tag:hover,
-	.post.featured .post-meta .tag:hover::before {
-		color: hsl(var(--theme-accent));
-	}
-	.post.featured .post-meta .tag:focus-visible {
-		outline: 2px solid hsl(var(--theme-accent));
-		outline-offset: 2px;
-		border-radius: 3px;
-	}
-	.post.featured .post-meta .dot {
-		color: var(--faint);
-		margin: 0 8px;
-	}
-	.post.featured .post-dot {
-		--rail-dot-size: 11px;
-		border-color: hsl(var(--theme-text-muted));
-	}
-	.post.featured:hover .post-dot {
-		background: hsl(var(--theme-accent));
-		border-color: hsl(var(--theme-accent));
 	}
 
 	.archive-link {

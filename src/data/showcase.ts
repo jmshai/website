@@ -11,14 +11,12 @@ export const showcase: ShowcaseItem[] = [
 		name: "Sample Project",
 		href: "https://github.com/example/sample",
 		stack: "TypeScript · CLI",
-		badge: "OSS",
 		desc: "A short, plain description of what the project does and why it's interesting. One or two sentences is plenty — keep the prose tight so the row stays scannable.",
 	},
 	{
 		name: "Another Thing",
 		href: "https://example.com",
 		stack: "Web App · Realtime",
-		badge: "Live",
 		desc: "Use the badge slot for a status hint — installs, stars, version, or just an OSS / Closed marker. Leave the field undefined and the badge disappears.",
 	},
 	{

@@ -24,19 +24,14 @@ const count = posts.length;
 
 const meta = {
 	description: `Every post tagged “${tag}”.`,
-	title: `Posts tagged #${tag}`,
+	title: `Tagged: ${tag}`,
 };
 ---
 
 <PageLayout meta={meta}>
 	<section class="tag-archive" aria-labelledby="tag-label">
-		<nav class="crumbs" aria-label="Breadcrumb">
-			<a data-astro-prefetch href={withBase("/tags/")}>Tags</a>
-			<span class="sep" aria-hidden="true">/</span>
-			<span class="current" aria-current="page">#{tag}</span>
-		</nav>
 		<div class="section-label" id="tag-label">
-			#{tag} · {count} {count === 1 ? "post" : "posts"}
+			{tag} · {count} {count === 1 ? "post" : "posts"}
 		</div>
 		<div class="timeline">
 			<PostList posts={posts} />
