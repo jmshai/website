@@ -10,6 +10,7 @@ import type { APIContext, InferGetStaticPropsType } from "astro";
 import { render } from "astro:content";
 import satori, { type SatoriOptions } from "satori";
 import { html } from "satori-html";
+import type { ReactNode } from "react";
 
 const ogOptions: SatoriOptions = {
 	fonts: [
@@ -74,16 +75,16 @@ export async function GET(context: APIContext) {
 
 	const host = context.site ? new URL(context.site).host : siteConfig.title;
 
-	const svg = await satori(
-		markup({
-			eyebrow: `Posts${SEP}${formatEyebrowDate(date)}`,
-			title,
-			byline: bylineParts.join(SEP),
-			tagsLine: tags.join(SEP),
-			host,
-		}),
-		ogOptions,
-	);
+  const svg = await satori(
+    markup({
+        eyebrow: `Posts${SEP}${formatEyebrowDate(date)}`,
+        title,
+        byline: bylineParts.join(SEP),
+        tagsLine: tags.join(SEP),
+        host,
+    }) as unknown as ReactNode,
+    ogOptions,
+  );
 	const png = new Resvg(svg).render().asPng();
 	return new Response(new Uint8Array(png), {
 		headers: {
