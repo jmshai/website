@@ -1,5 +1,5 @@
 ---
-title: "Hello, world"
+title: "Hello, World"
 publishDate: 2026-03-01
 description: "A first post — and a quick tour of what the writing template can render."
 tags: [ intro, demo, guide ]

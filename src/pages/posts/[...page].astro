@@ -45,7 +45,9 @@ const totalCount = page.total;
 	<section class="writing" aria-labelledby="writing-label">
 		<div class="section-label" id="writing-label">Writing · {totalCount} posts</div>
 		<div class="timeline">
-			<PostList posts={page.data} />
+      <PostList posts={page.data}
+      showPreview={false}
+      />
 		</div>
 		{
 			(paginationProps.prevUrl || paginationProps.nextUrl) && (

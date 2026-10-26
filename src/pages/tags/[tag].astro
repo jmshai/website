@@ -34,7 +34,10 @@ const meta = {
 			{tag} · {count} {count === 1 ? "post" : "posts"}
 		</div>
 		<div class="timeline">
-			<PostList posts={posts} />
+      <PostList
+      posts={posts}
+      showPreview={false}
+      />
 		</div>
 	</section>
 </PageLayout>
