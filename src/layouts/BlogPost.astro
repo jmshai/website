@@ -858,6 +858,42 @@ const giscusThemes = import.meta.env.PROD
 		border-radius: 3px;
 	}
 </style>
+<script>
+    function initCopyFeedback() {
+        document.querySelectorAll<HTMLElement>(
+            ".expressive-code .copy"
+        ).forEach((copy) => {
+            if (copy.dataset.feedbackInitialized) return;
+            copy.dataset.feedbackInitialized = "true";
+
+            const button = copy.querySelector<HTMLButtonElement>("button");
+            const feedback = copy.querySelector<HTMLElement>("[aria-live]");
+
+            if (!button || !feedback) return;
+
+            let timeout: ReturnType<typeof setTimeout>;
+
+            button.addEventListener("click", () => {
+                clearTimeout(timeout);
+
+                // Let Expressive Code handle the clipboard operation.
+                // Display our confirmation after its click handler.
+                requestAnimationFrame(() => {
+                    feedback.textContent = "Copied!";
+                    feedback.style.display = "block";
+
+                    timeout = setTimeout(() => {
+                        feedback.style.display = "none";
+                        feedback.textContent = "";
+                    }, 5000);
+                });
+            });
+        });
+    }
+
+    initCopyFeedback();
+    document.addEventListener("astro:page-load", initCopyFeedback);
+</script>
 
 {comments && (
 	<script is:inline define:vars={{ comments, giscusThemes }}>
