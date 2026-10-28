@@ -193,23 +193,42 @@
 
             if (reducedMotion.matches) return;
 
-            // Animate the drawing once.
-            const length = path.getTotalLength();
 
-            path.style.strokeDasharray = `${length}`;
-            path.style.strokeDashoffset = `${length}`;
+            // Animate the drawing once, using elapsed time.
+            const animatedPath = path;
+            const length = animatedPath.getTotalLength();
 
-            path.animate(
-                [
-                    { strokeDashoffset: length },
-                    { strokeDashoffset: 0 },
-                ],
-                {
-                    duration: 10000,
-                    easing: "ease-in-out",
-                    fill: "forwards",
+            animatedPath.style.strokeDasharray = `${length}`;
+            animatedPath.style.strokeDashoffset = `${length}`;
+
+            const animationDuration = 10000;
+            let startTime: number | null = null;
+
+            function animate(timestamp: number) {
+                if (startTime === null) {
+                    startTime = timestamp;
                 }
-            );
+
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / animationDuration, 1);
+
+                // Quadratic ease-in: starts slowly and accelerates.
+                const eased = progress ** 2;
+
+                animatedPath.style.strokeDashoffset =
+                    `${length * (1 - eased)}`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                animatedPath.style.strokeDashoffset = "0";
+            } else {
+                requestAnimationFrame(animate);
+            }
+
         });
     }
 
