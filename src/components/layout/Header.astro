@@ -1,219 +1,250 @@
+
 ---
 import { showcase } from "@/data/showcase";
-import { menuLinks, siteConfig } from "@/site-config";
+import { menuLinks } from "@/site-config";
 import { withBase } from "@/utils/path";
 import ThemeToggle from "../ThemeToggle.astro";
 
 const url = new URL(Astro.request.url);
-const wordmark = siteConfig.title;
 
 const visibleMenuLinks = menuLinks.filter((link) => {
-	if (link.path === "/showcase/" && showcase.length === 0) return false;
-	return true;
+    if (link.path === "/showcase/" && showcase.length === 0) return false;
+    return true;
 });
 
 const isActive = (path: string) => {
-	const target = withBase(path);
-	if (path === "/") return url.pathname === target;
-	return url.pathname === target || url.pathname.startsWith(target);
+    const target = withBase(path);
+    if (path === "/") return url.pathname === target;
+    return url.pathname === target || url.pathname.startsWith(target);
 };
 
 const navIcons: Record<string, string> = {
-	"/": '<path d="M2.5 6.5 8 2l5.5 4.5V13a1 1 0 0 1-1 1h-2.5v-4h-4v4H3.5a1 1 0 0 1-1-1Z"/>',
-	"/posts/":
-		'<path d="M3 2.5h7l3 3V13a.5.5 0 0 1-.5.5h-9.5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z"/><path d="M10 2.5V5.5h3"/><path d="M5.5 8.5h5"/><path d="M5.5 11h3.5"/>',
-	"/showcase/":
-		'<rect x="2" y="4.5" width="12" height="8.5" rx="1"/><path d="M5.5 4.5V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.5"/>',
-	"/about/":
-		'<circle cx="8" cy="6" r="2.5"/><path d="M3 13c.6-2.4 2.6-3.5 5-3.5s4.4 1.1 5 3.5"/>',
+    "/": '<path d="M2.5 6.5 8 2l5.5 4.5V13a1 1 0 0 1-1 1h-2.5v-4h-4v4H3.5a1 1 0 0 1-1-1Z"/>',
+    "/posts/":
+        '<path d="M3 2.5h7l3 3V13a.5.5 0 0 1-.5.5h-9.5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z"/><path d="M10 2.5V5.5h3"/><path d="M5.5 8.5h5"/><path d="M5.5 11h3.5"/>',
+    "/showcase/":
+        '<rect x="2" y="4.5" width="12" height="8.5" rx="1"/><path d="M5.5 4.5V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.5"/>',
+    "/about/":
+        '<circle cx="8" cy="6" r="2.5"/><path d="M3 13c.6-2.4 2.6-3.5 5-3.5s4.4 1.1 5 3.5"/>',
 };
 ---
 
 <header class="site-header" id="main-header">
-	<a href="/" class="wordmark site-logo" aria-label="shaijm — Home">
-		<span>s</span>
-		<span class="reveal" aria-hidden="true">
-			<span class="reveal-inner">hai</span>
-		</span>
-		<span>jm</span>
-	</a>
-	<div class="header-right">
-		<nav class="nav" aria-label="Primary">
-			{
-				visibleMenuLinks.map((link) => (
-					<a
-						aria-current={isActive(link.path) ? "page" : false}
-						class:list={[{ active: isActive(link.path) }]}
-						data-astro-prefetch
-						href={withBase(link.path)}
-					>
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 16 16"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							set:html={navIcons[link.path] ?? ""}
-						/>
-						<span>{link.title}</span>
-					</a>
-				))
-			}
-		</nav>
-		<ThemeToggle />
-	</div>
+    <a
+        href={withBase("/")}
+        class="wordmark site-logo"
+        aria-label="shailesh jm — Home"
+    >
+        shailesh jm
+    </a>
+
+    <div class="header-right">
+        <nav class="nav" aria-label="Primary">
+            {
+                visibleMenuLinks.map((link) => (
+                    <a
+                        aria-current={isActive(link.path) ? "page" : false}
+                        class:list={[{ active: isActive(link.path) }]}
+                        data-astro-prefetch
+                        href={withBase(link.path)}
+                    >
+                        <svg
+                            aria-hidden="true"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            set:html={navIcons[link.path] ?? ""}
+                        />
+                        <span>{link.title}</span>
+                    </a>
+                ))
+            }
+        </nav>
+        <ThemeToggle />
+    </div>
 </header>
 
 <style>
-	.site-header {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 24px;
-		margin-bottom: 72px;
-	}
-	.wordmark.site-logo {
-    display: inline-flex;
-    align-items: baseline;
-    white-space: nowrap;
-    text-decoration: none;
-    color: hsl(var(--theme-text));
-	}
+    .site-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 72px;
+    }
 
-	.site-logo {
-		display: inline-flex;
-		align-items: baseline;
-		white-space: nowrap;
-		text-decoration: none;
-	}
+    .wordmark.site-logo {
+        position: relative;
+        display: inline-block;
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        color: hsl(var(--theme-text));
+        text-decoration: none;
+        white-space: nowrap;
+    }
 
-	.site-logo .reveal {
-		display: inline-block;
-		width: 0;
-		overflow: hidden;
-		white-space: nowrap;
-		vertical-align: baseline;
-		transition: width 450ms cubic-bezier(0.25, 0.8, 0.25, 1);
-	}
+    /*
+     * A transparent copy of the wordmark creates a
+     * native, descender-aware double underline.
+     * clip-path reveals it from left to right.
+     */
+    .wordmark.site-logo::after {
+        content: "shailesh jm";
+        position: absolute;
+        inset: 0;
 
-	.site-logo .reveal-inner {
-		display: inline-block;
-		white-space: nowrap;
-		opacity: 0;
-		transition: opacity 250ms ease;
-	}
+        font: inherit;
+        white-space: nowrap;
+        color: transparent;
 
-	.site-logo:hover .reveal,
-	.site-logo:focus-visible .reveal {
-		width: 1.4em;
-	}
+        text-decoration-line: underline;
+        text-decoration-style: double;
+        text-decoration-color: hsl(var(--theme-text));
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+        text-decoration-skip-ink: auto;
 
-	.site-logo:hover .reveal-inner,
-	.site-logo:focus-visible .reveal-inner {
-		opacity: 1;
-	}
+        pointer-events: none;
 
-	@media (prefers-reduced-motion: reduce) {
-		.site-logo .reveal,
-		.site-logo .reveal-inner {
-			transition: none;
-		}
-	}
-	.header-right {
-		display: flex;
-		align-items: baseline;
-		gap: 22px;
-	}
-	.nav {
-		display: flex;
-		align-items: baseline;
-		gap: 22px;
-		font-family: var(--font-sans);
-		font-size: 13.5px;
-		color: hsl(var(--theme-text) / 0.72);
-	}
-	.nav a {
-		display: inline-block;
-		position: relative;
-		padding-bottom: 3px;
-		transition: color 0.2s ease;
-	}
-	/* Indicator overhangs the text slightly so the underline isn't abrupt. */
-	.nav a::after {
-		content: "";
-		position: absolute;
-		left: -3px;
-		right: -3px;
-		bottom: 0;
-		height: 1px;
-		background: transparent;
-	}
-	.nav a svg {
-		display: inline-block;
-		width: 14px;
-		height: 14px;
-		stroke: currentColor;
-		vertical-align: -2px;
-		margin-right: 6px;
-	}
-	.nav a:hover {
-		color: hsl(var(--theme-accent));
-	}
-	.nav a.active {
-		color: hsl(var(--theme-text));
-	}
-	.nav a.active::after {
-		background: hsl(var(--theme-accent));
-	}
+        clip-path: inset(0 100% 0 0);
+        transition: clip-path 550ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
 
-	@media (max-width: 720px) {
-		.site-header {
-			margin-bottom: 36px;
-			display: grid;
-			grid-template-columns: 1fr auto;
-			grid-template-areas:
-				"wordmark theme"
-				"nav nav";
-			align-items: center;
-			column-gap: 14px;
-			row-gap: 14px;
-		}
-		.wordmark { grid-area: wordmark; }
-		.header-right { display: contents; }
-		.theme-toggle { grid-area: theme; justify-self: end; }
-		.nav {
-			grid-area: nav;
-			gap: 22px;
-			font-size: 13px;
-			flex-wrap: wrap;
-			justify-content: flex-start;
-		}
-		.nav a {
-			/* Add top tap padding; desktop rule keeps the indicator space below. */
-			padding-top: 6px;
-		}
-		.nav a svg {
-			width: 13px;
-			height: 13px;
-		}
-	}
+    .wordmark.site-logo:hover::after,
+    .wordmark.site-logo:focus-visible::after {
+        clip-path: inset(0 0 0 0);
+    }
 
-	@media (max-width: 420px) {
-		.site-header {
-			margin-bottom: 28px;
-			row-gap: 12px;
-		}
-		.wordmark {
-			font-size: 16px;
-		}
-		.nav {
-			gap: 18px;
-			font-size: 12.5px;
-		}
-		.nav a svg {
-			display: none;
-		}
-	}
+    .site-logo:focus-visible {
+        outline: 2px solid hsl(var(--theme-accent));
+        outline-offset: 6px;
+        border-radius: 2px;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: baseline;
+        gap: 22px;
+    }
+
+    .nav {
+        display: flex;
+        align-items: baseline;
+        gap: 22px;
+        font-family: var(--font-sans);
+        font-size: 13.5px;
+        color: hsl(var(--theme-text) / 0.8);
+    }
+
+    .nav a {
+        display: inline-block;
+        position: relative;
+        padding-bottom: 3px;
+        transition: color 0.2s ease;
+    }
+
+    .nav a::after {
+        content: "";
+        position: absolute;
+        left: -3px;
+        right: -3px;
+        bottom: 0;
+        height: 1px;
+        background: transparent;
+    }
+
+    .nav a svg {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        vertical-align: -2px;
+        margin-right: 6px;
+    }
+
+    .nav a:hover {
+        color: hsl(var(--theme-accent));
+    }
+
+    .nav a.active {
+        color: hsl(var(--theme-text));
+    }
+
+    .nav a.active::after {
+        background: hsl(var(--theme-accent));
+    }
+
+    @media (max-width: 720px) {
+        .site-header {
+            margin-bottom: 36px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-areas:
+                "wordmark theme"
+                "nav nav";
+            align-items: center;
+            column-gap: 14px;
+            row-gap: 14px;
+        }
+
+        .wordmark {
+            grid-area: wordmark;
+        }
+
+        .header-right {
+            display: contents;
+        }
+
+        .theme-toggle {
+            grid-area: theme;
+            justify-self: end;
+        }
+
+        .nav {
+            grid-area: nav;
+            gap: 22px;
+            font-size: 13px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .nav a {
+            padding-top: 6px;
+        }
+
+        .nav a svg {
+            width: 13px;
+            height: 13px;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .site-header {
+            margin-bottom: 28px;
+            row-gap: 12px;
+        }
+
+        .wordmark.site-logo {
+            font-size: 16px;
+        }
+
+        .nav {
+            gap: 18px;
+            font-size: 12.5px;
+        }
+
+        .nav a svg {
+            display: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .wordmark.site-logo::after {
+            transition: none;
+        }
+    }
 </style>
+

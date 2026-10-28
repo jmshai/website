@@ -1,0 +1,219 @@
+
+<a
+    class="harmonograph"
+    href="https://en.wikipedia.org/wiki/Harmonograph"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Randomly generated harmonograph — learn about harmonographs on Wikipedia (opens in a new tab)"
+    title="Harmonograph · Learn more on Wikipedia"
+>
+    <svg
+        viewBox="0 0 600 440"
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label="Randomly generated mathematical harmonograph"
+    >
+        <path class="harmonograph-path"></path>
+    </svg>
+</a>
+
+<style>
+    .harmonograph {
+        display: block;
+        width: 100%;
+        max-width: 680px;
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer ;
+        transform: scale(1.15);
+        transform-origin: center;
+    }
+
+    .harmonograph svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+    }
+
+    .harmonograph-path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 1;
+    vector-effect: non-scaling-stroke;
+
+    transition: opacity 350ms ease;
+    }
+
+    .harmonograph:hover .harmonograph-path {
+        opacity: 0.6;
+    }
+
+    .harmonograph:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 6px;
+        border-radius: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .harmonograph-path {
+            transition: none;
+        }
+    }
+
+    @media (max-width: 720px) {
+    .harmonograph {
+        margin-inline: auto;
+      }
+    }
+</style>
+
+<script>
+    function initHarmonograph() {
+        const containers = document.querySelectorAll<HTMLAnchorElement>(
+            ".harmonograph:not([data-initialized])"
+        );
+
+        containers.forEach((container) => {
+            container.dataset.initialized = "true";
+
+            const path = container.querySelector<SVGPathElement>(
+                ".harmonograph-path"
+            );
+
+            if (!path) return;
+
+            // Random number helpers.
+            const random = (min: number, max: number) =>
+                min + Math.random() * (max - min);
+
+            const choose = <T,>(items: T[]): T =>
+                items[Math.floor(Math.random() * items.length)];
+
+            // Choose a family of frequency relationships.
+            // Keeping frequencies near simple ratios creates
+            // recognizable, structured patterns rather than noise.
+            const families = [
+                [2, 3, 2, 3],
+                [3, 2, 2, 3],
+                [2, 2, 3, 3],
+                [3, 4, 3, 4],
+                [2, 3, 3, 2],
+                [1, 2, 2, 1],
+                [3, 5, 3, 5],
+            ];
+
+            const base = choose(families);
+
+            const frequencies = base.map(
+                (f) => f + random(-0.035, 0.035)
+            );
+
+            const phases = Array.from(
+                { length: 4 },
+                () => random(0, Math.PI * 2)
+            );
+
+            const amplitudes = [
+                random(100, 150),
+                random(35, 85),
+                random(100, 150),
+                random(35, 85),
+            ];
+
+            const damping = random(0.001, 0.005);
+            const duration = random(80, 150);
+
+            const samples = 8500;
+            const points: { x: number; y: number }[] = [];
+
+            // Four damped oscillators.
+            function position(t: number) {
+                const decay = Math.exp(-damping * t);
+
+                const x =
+                    amplitudes[0] *
+                        Math.sin(frequencies[0] * t + phases[0]) +
+                    amplitudes[1] *
+                        Math.sin(frequencies[1] * t + phases[1]);
+
+                const y =
+                    amplitudes[2] *
+                        Math.sin(frequencies[2] * t + phases[2]) +
+                    amplitudes[3] *
+                        Math.sin(frequencies[3] * t + phases[3]);
+
+                return {
+                    x: x * decay,
+                    y: y * decay,
+                };
+            }
+
+            // Generate points.
+            for (let i = 0; i <= samples; i++) {
+                const t = (i / samples) * duration;
+                points.push(position(t));
+            }
+
+            // Automatically fit every random pattern into the SVG.
+            const xs = points.map((p) => p.x);
+            const ys = points.map((p) => p.y);
+
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+
+            const scale = Math.min(
+                520 / Math.max(maxX - minX, 1),
+                370 / Math.max(maxY - minY, 1)
+            );
+
+            const pathData = points
+                .map((p, i) => {
+                    const x = 300 + (p.x - centerX) * scale;
+                    const y = 220 + (p.y - centerY) * scale;
+
+                    return `${i === 0 ? "M" : "L"}${x.toFixed(3)} ${y.toFixed(3)}`;
+                })
+                .join(" ");
+
+            path.setAttribute("d", pathData);
+
+            // Respect reduced-motion preferences.
+            const reducedMotion = window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            );
+
+            if (reducedMotion.matches) return;
+
+            // Animate the drawing once.
+            const length = path.getTotalLength();
+
+            path.style.strokeDasharray = `${length}`;
+            path.style.strokeDashoffset = `${length}`;
+
+            path.animate(
+                [
+                    { strokeDashoffset: length },
+                    { strokeDashoffset: 0 },
+                ],
+                {
+                    duration: 10000,
+                    easing: "ease-in-out",
+                    fill: "forwards",
+                }
+            );
+        });
+    }
+
+    initHarmonograph();
+    document.addEventListener("astro:page-load", initHarmonograph);
+</script>
+

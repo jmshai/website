@@ -1,5 +1,6 @@
 ---
 import PostList from "@/components/blog/PostList.astro";
+import Plate from "@/components/Plate.astro";
 import { getAllPosts, sortMDByDate } from "@/data/post";
 import { showcase } from "@/data/showcase";
 import PageLayout from "@/layouts/Base.astro";
@@ -47,6 +48,7 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 		}}
 	/>
 	<section class="hero">
+		<div class="hero-text">
 		<p>{siteConfig.description}</p>
 		<div class="socials">
 			{profile?.github && (
@@ -68,6 +70,8 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 				</>
 			)}
 		</div>
+		</div>
+		<div class="hero-plate"><Plate /></div>
 	</section>
 
 	<section class="writing" aria-labelledby="writing-label">
@@ -116,6 +120,13 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 	/* ---------- Hero ---------- */
 	.hero {
 		margin-bottom: 76px;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 260px;
+		column-gap: 44px;
+		align-items: center;
+	}
+	.hero-plate {
+		width: 100%;
 	}
 	.hero p {
 		font-size: 19.5px;
@@ -129,7 +140,7 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 	.socials {
 		font-family: var(--font-sans);
 		font-size: 13.5px;
-		color: hsl(var(--theme-text) / 0.72);
+		color: hsl(var(--theme-text) / 0.8);
 		margin-top: 18px;
 	}
 	.socials a {
@@ -159,7 +170,7 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 		margin-top: 8px;
 		font-family: var(--font-sans);
 		font-size: 13.5px;
-		color: hsl(var(--theme-text) / 0.72);
+		color: hsl(var(--theme-text) / 0.8);
 	}
 	.archive-link a {
 		display: inline-block;
@@ -190,6 +201,12 @@ const siteUrl = (path: string) => absoluteUrl(path, Astro.site);
 	@media (max-width: 720px) {
 		.hero {
 			margin-bottom: 56px;
+			grid-template-columns: minmax(0, 1fr);
+			row-gap: 36px;
+		}
+		.hero-plate {
+      width: 220px;
+      justify-self: center;
 		}
 		.hero p {
 			font-size: 18px;
