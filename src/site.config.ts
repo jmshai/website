@@ -12,7 +12,7 @@ export const siteConfig: SiteConfig = {
 		},
 	},
 	description:
-		"personal website of shailesh jm",
+		"learning through writing",
 	lang: "en-US",
 	ogLocale: "en_US",
 	sortPostsByUpdatedDate: false,

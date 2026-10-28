@@ -1,0 +1,89 @@
+---
+title: "Why Do Transformers Divide Attention Scores by √d?"
+description: "A variance argument for scaled dot-product attention, with an interactive softmax experiment."
+publishDate: 2026-10-12
+tags: ["nlp", "transformers", "mathematics"]
+draft: false
+---
+import AttentionScalingLab from "../../../components/blog/interactive/AttentionScalingLab";
+
+The attention mechanism compares queries against keys and uses those comparisons to mix values. The formula is familiar:
+
+$$
+\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V.
+$$
+
+But why is the denominator $\sqrt{d_k}$ rather than $d_k$, or nothing at all? The answer begins with the variance of a dot product.
+## The dot product grows with dimension
+
+Let $q,k\in\mathbb R^d$. Suppose, *for this calculation*, that their coordinates are independent, centered, and each have variance one. The unscaled score is
+
+$$
+s=q^\top k=\sum_{i=1}^{d}q_i k_i.
+$$
+
+Under these assumptions, each product has mean zero and variance one, so
+
+$$
+\mathbb E[s]=0,\qquad \operatorname{Var}(s)=d,
+\qquad \operatorname{SD}(s)=\sqrt d.
+$$
+
+Thus the typical score magnitude increases with $\sqrt d$. Dividing by $\sqrt d$ keeps the score variance near one:
+
+$$
+\operatorname{Var}\left(\frac{q^\top k}{\sqrt d}\right)\approx1.
+$$
+
+These assumptions are an intuition, not a claim that trained queries and keys are independent standard-normal vectors. Learned projections, normalization and correlations can change the actual distribution.
+
+## Why score scale matters to softmax
+
+For scores $z_1,\dots,z_n$, the attention weights are
+
+$$
+a_i=\frac{e^{z_i}}{\sum_j e^{z_j}}.
+$$
+
+Multiplying all scores by a large positive constant usually makes the largest score dominate. The resulting distribution approaches a one-hot selection when the maximum is unique. Softmax then becomes locally insensitive for many coordinates, making optimization harder.
+
+Conversely, when scores are very small, the attention distribution is close to uniform. Scaling is intended to keep scores in a useful numerical range as key dimension changes.
+
+<AttentionScalingLab client:load />
+
+Try the largest dimension with scaling disabled. Regenerate several samples: the maximum weight will often be close to one. Enable scaling and observe that the weights tend to spread out. This is a distributional effect, not an exact rule for every random draw.
+
+## A tiny NumPy demonstration
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(7)
+d, n_keys = 128, 8
+q = rng.standard_normal(d)
+K = rng.standard_normal((n_keys, d))
+
+scores = K @ q
+scaled = scores / np.sqrt(d)
+
+def softmax(x):
+    ex = np.exp(x - x.max())  # numerical stability
+    return ex / ex.sum()
+
+print("raw:", softmax(scores))
+print("scaled:", softmax(scaled))
+```
+
+In a full attention layer, queries, keys and values are matrices, and the softmax is applied along the key axis for each query. Masked attention additionally prevents certain positions from receiving weight by setting their logits to a very negative value before softmax.
+
+## A subtle distinction: path length versus computational cost
+
+Self-attention allows a token to interact directly with distant positions within a layer. That short interaction path is one reason transformers are effective at long-range dependencies. But dense attention still constructs a score matrix with $n^2$ entries for sequence length $n$; short paths do not mean cheap computation or memory use.
+
+## Takeaway
+
+The $\sqrt{d_k}$ denominator is a variance-normalization heuristic motivated by the growth of random dot products. It reduces the tendency for large-dimensional scores to push softmax into saturated regimes. It does not by itself solve the quadratic cost of attention, nor does it guarantee uniformly distributed attention.
+
+### Further reading
+
+- Vaswani et al., [Attention Is All You Need](https://arxiv.org/abs/1706.03762), Section 3.2.1.

@@ -1,0 +1,90 @@
+---
+title: "Word2Vec, Negative Sampling, and the Geometry of Meaning"
+description: "How predicting contexts produces word embeddings, and why negative sampling changes the learning problem."
+publishDate: 2026-9-15
+tags: ["nlp", "embeddings", "deep-learning"]
+draft: false
+---
+import EmbeddingSamplingLab from "../../../components/blog/interactive/EmbeddingSamplingLab";
+
+How can a model learn that *hotel* and *motel* are related without being given a dictionary of synonyms? One answer is to learn from the contexts in which words occur. Word2Vec made this idea practical with small neural objectives and efficient training tricks.
+
+## From identity to geometry
+
+A one-hot vector says which word we have, but not how it relates to another word. Every pair of distinct one-hot vectors has dot product zero. Dense embeddings instead assign each word $w$ a vector $v_w\in\mathbb R^d$. Related contexts can lead to related representations.
+
+Cosine similarity compares their directions:
+
+$$
+\operatorname{cos}(v_a,v_b)=\frac{v_a^\top v_b}{\|v_a\|_2\|v_b\|_2}.
+$$
+
+Similarity is learned from the training objective; it is not guaranteed to match human semantic judgments for every word.
+
+## Skip-gram predicts nearby words
+
+Take a center word $c$ and an observed context word $o$. Skip-gram assigns them separate vectors $v_c$ and $u_o$ and scores the pair using $u_o^\top v_c$.
+
+A full-softmax model would estimate
+
+$$
+P(o\mid c)=\frac{\exp(u_o^\top v_c)}{\sum_{w\in V}\exp(u_w^\top v_c)}.
+$$
+
+The denominator sums over the vocabulary $V$. With a large vocabulary, computing it for every observed center-context pair is expensive.
+
+## Negative sampling asks a different question
+
+Instead of normalizing over all words, negative sampling trains a binary discriminator: is this center-context pair observed in the data, or sampled from a noise distribution?
+
+For one positive pair $(c,o)$ and $K$ sampled negatives $n_1,\ldots,n_K$, a standard loss is
+
+$$
+\mathcal L=-\log\sigma(u_o^\top v_c)
+-\sum_{j=1}^K\log\sigma(-u_{n_j}^\top v_c),
+$$
+
+where $\sigma(z)=1/(1+e^{-z})$. Positive scores are encouraged to rise; sampled negative scores are encouraged to fall. **The sigmoid scores are not a normalized distribution over context words.**
+
+A common noise distribution uses a smoothed unigram frequency:
+
+$$
+q(w)=\frac{\operatorname{count}(w)^{3/4}}{\sum_{v\in V}\operatorname{count}(v)^{3/4}}.
+$$
+
+Compared with sampling proportional to raw counts, the exponent $3/4$ reduces the dominance of the most frequent words while retaining their relative prevalence.
+
+<EmbeddingSamplingLab client:load />
+
+The widget holds example dot-product scores fixed and shows the **expected** negative-sampling loss as you vary the noise distribution and number of negatives. It does not train embeddings or visualize a learned embedding space; its purpose is to isolate the sampling objective.
+
+## A compact implementation of the objective
+
+```python
+import torch
+import torch.nn.functional as F
+
+def negative_sampling_loss(center, positive, negatives):
+    # center: [batch, dim]
+    # positive: [batch, dim]
+    # negatives: [batch, K, dim]
+    positive_scores = (center * positive).sum(dim=-1)
+    negative_scores = torch.einsum("bd,bkd->bk", center, negatives)
+    return -(
+        F.logsigmoid(positive_scores)
+        + F.logsigmoid(-negative_scores).sum(dim=1)
+    ).mean()
+```
+
+This assumes that `center`, `positive`, and `negatives` have already been looked up from trainable embedding tables. In practice, one also chooses a context-window policy, negative-sampling distribution, subsampling of frequent words, and optimizer.
+
+## What do the vectors capture?
+
+The objective rewards words that appear in similar contexts, so embeddings can encode semantic and syntactic regularities. But they also reflect corpus frequency, domain, and biases in the training text. A nearest-neighbor list is evidence of what the representation learned—not a definitive statement about language.
+
+Negative sampling is a useful example of a general ML design pattern: change a difficult probability estimation task into a collection of easier discrimination tasks, then examine carefully what statistical object the new objective actually learns.
+
+### Further reading
+
+- Mikolov et al., [Efficient Estimation of Word Representations in Vector Space](https://arxiv.org/abs/1301.3781).
+- Mikolov et al., [Distributed Representations of Words and Phrases and their Compositionality](https://arxiv.org/abs/1310.4546).

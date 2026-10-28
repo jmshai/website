@@ -1,0 +1,90 @@
+---
+title: "Decomposing Time Series: From Moving Averages to STL"
+description: "Trend, seasonality and remainder components, and why robust STL is often more flexible than classical decomposition."
+publishDate: 2026-10-22
+tags: ["time-series", "statistics", "forecasting"]
+draft: false
+---
+import DecompositionLab from "../../../components/blog/interactive/DecompositionLab";
+
+A time series may contain a slowly varying trend, a repeating seasonal pattern, and irregular variation. Decomposition tries to separate these components so we can understand the structure before building a forecast.
+
+## Additive versus multiplicative structure
+
+The additive model writes
+
+$$
+y_t=T_t+S_t+R_t,
+$$
+
+where $T_t$ is the trend-cycle, $S_t$ the seasonal component, and $R_t$ the remainder. It is a natural starting point when seasonal swings are roughly constant in size.
+
+When fluctuations grow with the level of the series, a multiplicative model may be more appropriate:
+
+$$
+y_t=T_tS_tR_t.
+$$
+
+For positive observations, taking logarithms converts the multiplicative model into an additive one. Box–Cox transformations generalize this idea and can stabilize the scale of seasonal variation.
+
+## Classical decomposition uses moving averages
+
+A centered moving average smooths short-term variation. For odd window size $m=2k+1$,
+
+$$
+\hat T_t=\frac1m\sum_{j=-k}^{k}y_{t+j}.
+$$
+
+With even seasonal periods, a centered $2\times m$ moving average can be used to align the smoothed estimate with observations. After estimating the trend, classical decomposition averages detrended values by season to estimate a repeating seasonal pattern.
+
+This works well when seasonality is reasonably stable, but it has limitations: endpoint estimates are missing for centered windows, unusual observations can distort the averages, and the same seasonal shape is assumed to repeat.
+
+## STL allows seasonality to evolve
+
+STL uses locally weighted regression (LOESS) in an iterative decomposition. It has controls for the smoothness of the seasonal and trend components and can perform robust reweighting to reduce the influence of outliers.
+
+The next experiment uses a **real STL implementation** rather than a visual approximation. I precomputed fits using `statsmodels.tsa.seasonal.STL` for a synthetic monthly series with a slowly changing trend, evolving seasonal amplitude, and optional outlier. Each combination of controls selects a different fit.
+
+<DecompositionLab client:load />
+
+Try turning the outlier on at month 76. Compare robust fitting on and off, keeping the smoothing windows fixed. Then change the seasonal window to see how much short-term seasonal movement the model allows.
+
+## Reproduce the experiment in Python
+
+```python
+import numpy as np
+from statsmodels.tsa.seasonal import STL
+
+rng = np.random.default_rng(41)
+t = np.arange(120)
+trend = 22 + 0.09*t + 2*np.sin(t/30)
+seasonal = (3 + 0.012*t)*np.sin(2*np.pi*t/12)
+noise = rng.normal(0, 0.65, len(t))
+y = trend + seasonal + noise
+y[75] += 13  # unusual observation
+
+fit = STL(
+    y, period=12, seasonal=13, trend=25, robust=True
+).fit()
+
+trend_estimate = fit.trend
+seasonal_estimate = fit.seasonal
+remainder = fit.resid
+```
+
+The interactive example includes an additional harmonic in the seasonal component, but the same decomposition method applies. The observed data is always the sum of the fitted components up to numerical rounding.
+
+## Decomposition is not forecasting
+
+A smooth-looking trend is not automatically a good forecast. STL describes historical structure; it does not itself specify how the trend and seasonal components should evolve into the future. To forecast, we still need a model for future dynamics, plus a principled method for evaluating its errors on unseen periods.
+
+There is also a danger in using decomposition features for supervised forecasting: if a centered smoother is fitted to the entire series before splitting training and test data, the decomposition at earlier times can depend on future observations. A leakage-safe forecasting pipeline must fit transformations using only information available at each forecast origin.
+
+## Takeaway
+
+Classical decomposition is easy to understand and useful as a baseline. STL is more flexible when seasonal patterns evolve and can be more robust to outliers. Neither replaces time-aware evaluation or a forecasting model.
+
+### Further reading
+
+- Cleveland et al., [STL: A Seasonal-Trend Decomposition Procedure Based on Loess](https://www.wessa.net/download/stl.pdf).
+- [statsmodels STL documentation](https://www.statsmodels.org/stable/generated/statsmodels.tsa.seasonal.STL.html).

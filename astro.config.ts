@@ -36,7 +36,7 @@ const postLastModified = getPostLastModified();
 const externalPostIds = getExternalPostIds();
 
 export default defineConfig({
-    site: process.env.SITE_URL || "https://anjay-goel.github.io",
+    site: process.env.SITE_URL || "https://shaijm.com",
     base: BASE_PATH,
     image: {
         domains: ["webmention.io"],

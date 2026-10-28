@@ -1,0 +1,104 @@
+---
+title: "Why Adam Works: From Gradient Descent to Adaptive Optimization"
+description: "Deriving momentum, RMSprop and Adam, with an interactive comparison on an ill-conditioned objective."
+publishDate: 2026-9-29
+tags: ["deep-learning", "optimization", "mathematics"]
+draft: false
+---
+import OptimizerExplorer from "../../../components/blog/interactive/OptimizerExplorer";
+
+Gradient descent looks simple on paper: compute a gradient and move in the opposite direction. But on a loss surface that is steep in one direction and flat in another, that rule can produce an unhelpful zigzag. Momentum and adaptive learning rates address different parts of this problem; Adam combines them.
+
+## Start with a loss that is difficult to navigate
+
+Consider the convex quadratic
+
+$$
+f(x,y)=\frac12(x^2+18y^2),\qquad \nabla f(x,y)=(x,18y).
+$$
+
+Its minimum is at $(0,0)$. The gradient is eighteen times more sensitive to $y$ than to $x$ at equal coordinates. A single learning rate must be small enough not to overshoot in the steep direction, even when we would prefer much larger steps in the shallow direction.
+
+Ordinary gradient descent updates parameters $\theta$ by
+
+$$
+\theta_t=\theta_{t-1}-\eta g_t,\qquad g_t=\nabla f(\theta_{t-1}).
+$$
+
+For this quadratic, the $y$ update is $y_t=(1-18\eta)y_{t-1}$. Its magnitude shrinks only when $|1-18\eta|<1$, so stable convergence in that coordinate requires $0<\eta<1/9$. That is already a concrete reason why the same learning rate may behave differently across directions.
+
+## Momentum remembers the direction of travel
+
+Momentum replaces the raw gradient with a moving average (here, using the unnormalized convention):
+
+$$
+v_t=\beta v_{t-1}+g_t,\qquad \theta_t=\theta_{t-1}-\eta v_t.
+$$
+
+Consistent gradients accumulate, while rapidly alternating gradients can partially cancel. In a narrow valley, that can damp oscillations and accelerate progress along the valley. The learning rate and momentum coefficient still require tuning; momentum is not guaranteed to improve every trajectory.
+
+## RMSprop adapts to gradient magnitude
+
+RMSprop tracks a moving average of squared gradients, independently for each coordinate:
+
+$$
+s_t=\rho s_{t-1}+(1-\rho)g_t^2,
+\qquad
+\theta_t=\theta_{t-1}-\eta\frac{g_t}{\sqrt{s_t}+\epsilon}.
+$$
+
+The square and square root are elementwise. Coordinates with persistently large gradients receive smaller effective steps. This is not the same as momentum: RMSprop remembers *scale*, while momentum remembers *direction*.
+
+## Adam combines both ideas
+
+Adam maintains first and second moment estimates:
+
+$$
+m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,
+\qquad
+v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2.
+$$
+
+Because both accumulators start at zero, their early estimates are biased toward zero. Adam corrects this initialization effect:
+
+$$
+\hat m_t=\frac{m_t}{1-\beta_1^t},\qquad
+\hat v_t=\frac{v_t}{1-\beta_2^t},\qquad
+\theta_t=\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}.
+$$
+
+In the demonstration below, $\beta_1=0.9$ and $\beta_2=0.999$. RMSprop and momentum use their own fixed decay factors. This isolates the qualitative differences between the update rules.
+
+<OptimizerExplorer client:load />
+
+## Implementing Adam without an optimizer library
+
+The important implementation detail is that $t$ counts **parameter updates**, not epochs. Bias correction must use the same update index as the moment estimates.
+
+```python
+import numpy as np
+
+m = np.zeros_like(theta)
+v = np.zeros_like(theta)
+beta1, beta2 = 0.9, 0.999
+lr, eps = 0.01, 1e-8
+
+for t in range(1, num_steps + 1):
+    grad = gradient(theta)
+    m = beta1 * m + (1 - beta1) * grad
+    v = beta2 * v + (1 - beta2) * grad**2
+    m_hat = m / (1 - beta1**t)
+    v_hat = v / (1 - beta2**t)
+    theta -= lr * m_hat / (np.sqrt(v_hat) + eps)
+```
+
+## What the picture does *not* establish
+
+A single deterministic quadratic cannot establish which optimizer is best for a neural network. Neural-network losses are nonconvex, minibatch gradients are noisy, and generalization matters beyond training loss. Adaptive optimizers can converge quickly while still behaving differently from SGD with momentum on held-out data. Weight decay also matters: AdamW decouples weight decay from Adam's gradient update.
+
+The useful mental model is narrower: momentum smooths directions; RMSprop rescales coordinates; Adam combines those mechanisms and corrects their initialization bias.
+
+### Further reading
+
+- Kingma and Ba, [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980).
+- Loshchilov and Hutter, [Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101).
