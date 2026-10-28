@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="10" fill="#f5f0df"/>
+  <text
+    x="32"
+    y="47"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="49"
+    fill="#151c79"
+  >S</text>
+  <path
+    d="M17 51H47 M17 55H47"
+    fill="none"
+    stroke="#151c79"
+    stroke-width="1.5"
+  />
+</svg>

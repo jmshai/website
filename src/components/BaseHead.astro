@@ -24,11 +24,15 @@ const goatcounter = analytics?.goatcounterUrl;
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>{siteTitle}</title>
 
-<link href={withBase("/icon.png")} rel="icon" type="image/png"/>
+<link
+    rel="icon"
+    type="image/svg+xml"
+    href={`${withBase("/favicon.svg")}?v=2`}
+/>
 {
     import.meta.env.PROD && (
     <>
-        <link rel="icon" href={withBase("/favicon-32x32.png")} type="image/png"/>
+        <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
         <link rel="sitemap" href={withBase("/sitemap-index.xml")}/>
         <link href={withBase("/icons/apple-touch-icon.png")} rel="apple-touch-icon"/>
     </>
