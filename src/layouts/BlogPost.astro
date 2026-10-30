@@ -140,16 +140,16 @@ const giscusThemes = import.meta.env.PROD
 
 			{(olderPost || newerPost) && (
 				<nav class="post-pager" aria-label="More posts">
-					{olderPost && (
-						<a class="pager-link prev" data-astro-prefetch href={getPostHref(olderPost)}>
-							<span class="pager-eyebrow">Older</span>
-							<span class="pager-title">{olderPost.data.title}</span>
-						</a>
-					)}
 					{newerPost && (
-						<a class="pager-link next" data-astro-prefetch href={getPostHref(newerPost)}>
+						<a class="pager-link prev" data-astro-prefetch href={getPostHref(newerPost)}>
 							<span class="pager-eyebrow">Newer</span>
 							<span class="pager-title">{newerPost.data.title}</span>
+						</a>
+					)}
+					{olderPost && (
+						<a class="pager-link next" data-astro-prefetch href={getPostHref(olderPost)}>
+							<span class="pager-eyebrow">Older</span>
+							<span class="pager-title">{olderPost.data.title}</span>
 						</a>
 					)}
 				</nav>
