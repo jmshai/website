@@ -1,3 +1,3 @@
 Personal Website, 
 
-theme adapted from [Anjay Goel](https://github.com/anjay-goel/astro-sienna)
+theme adapted from [Anjay Goel's Astro Sienna](https://github.com/anjay-goel/astro-sienna)
