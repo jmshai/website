@@ -86,18 +86,11 @@ const giscusThemes = import.meta.env.PROD
 		<TableOfContents headings={headings} />
 		<div class="post-main" data-pagefind-body>
 			<div id="blog-hero" class="post-header">
-				<div class="post-eyebrow">
-					Posts <span class="sep">·</span> {eyebrowDate}
-				</div>
 				{draft && <span class="draft-flag">(Draft)</span>}
 				<h1 class="post-title">{title}</h1>
 				<p class="byline">
-					{authorName && <>By {authorName}<span class="sep">·</span></>}{bylineDate}{readingTime && (
-						<>
-							<span class="sep">·</span>{readingTime}
-						</>
-					)}
-				</p>
+        {authorName && <>By {authorName}<span class="sep">·</span></>}{bylineDate}
+        </p>
 				{!!tags?.length && (
 					<div class="post-tags">
 						{tags.map((tag, i) => (
