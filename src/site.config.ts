@@ -12,7 +12,7 @@ export const siteConfig: SiteConfig = {
 		},
 	},
 	description:
-		"learning through writing",
+		"learning through writing \n\n ⌖ nus, singapore",
 	lang: "en-US",
 	ogLocale: "en_US",
 	sortPostsByUpdatedDate: false,
@@ -53,13 +53,14 @@ export const menuLinks: { path: string; title: string }[] = [
 		title: "Posts",
 	},
 	{
+		path: "/tags/",
+		title: "Tags",
+	},
+	{
 		path: "/showcase/",
 		title: "Showcase",
 	},
-	{
-		path: "/about/",
-		title: "About",
-	},
+
 ];
 
 export const expressiveCodeOptions: AstroExpressiveCodeOptions = {
