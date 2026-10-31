@@ -19,9 +19,8 @@ const isActive = (path: string) => {
 };
 
 const navIcons: Record<string, string> = {
-    "/": '<path d="M2.5 6.5 8 2l5.5 4.5V13a1 1 0 0 1-1 1h-2.5v-4h-4v4H3.5a1 1 0 0 1-1-1Z"/>',
-    "/posts/":
-        '<path d="M3 2.5h7l3 3V13a.5.5 0 0 1-.5.5h-9.5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z"/><path d="M10 2.5V5.5h3"/><path d="M5.5 8.5h5"/><path d="M5.5 11h3.5"/>',
+    "/": '<g transform="scale(0.6667)" stroke-width="2.25"> <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /> <polyline points="9 22 9 12 15 12 15 22" /> </g>',
+    "/posts/":'<g transform="scale(0.6667)" stroke-width="2.25">  <path d="M15 18h-5" />  <path d="M18 14h-8" />  <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2" />  <rect width="8" height="4" x="10" y="6" rx="1" /></g>',
     "/showcase/":
         '<rect x="2" y="4.5" width="12" height="8.5" rx="1"/><path d="M5.5 4.5V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.5"/>',
     "/tags/":
