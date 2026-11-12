@@ -1,7 +1,4 @@
 ---
 title: About
-description: A short introduction. Replace this in src/content/page/about.md.
+description: Education and experience, Shailesh Jagan Mohan.
 ---
-⌖ nus, singapore
-
-[github](https://github.com/jmshai)

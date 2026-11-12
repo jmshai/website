@@ -60,6 +60,10 @@ export const menuLinks: { path: string; title: string }[] = [
 		path: "/showcase/",
 		title: "Showcase",
 	},
+	{
+		path: "/about/",
+		title: "About",
+	},
 
 ];
 
