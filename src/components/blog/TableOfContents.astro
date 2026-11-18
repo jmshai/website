@@ -15,8 +15,6 @@ const sections = headings.filter(
 {sections.length > 0 && (
     <aside class="toc" aria-label="Table of contents">
         <nav class="toc-inner" aria-label="On this page">
-            <p class="toc-title">On this page</p>
-
             <ul>
                 {sections.map((heading) => (
                     <li class:list={{ nested: heading.depth === 3 }}>
